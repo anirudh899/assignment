@@ -6,6 +6,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedList;
 
 public class Indexer 
@@ -13,11 +15,13 @@ public class Indexer
 	// have an index variable
 	ArrayList<Term> termList;
 	heap topKTerms;
+	HashMap<String,TermData> map;
 	
 	public Indexer(String file_name, int top_K)
 	{
 		termList = new ArrayList<Term>();
 		topKTerms = new heap(top_K);
+		map = new HashMap<String,TermData>();
 		File f = new File(file_name);
 		
 		FileReader fr = null;
@@ -38,6 +42,7 @@ public class Indexer
 				
 			}
 			topKTerms.sort();
+			createMap();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -94,6 +99,16 @@ public class Indexer
 		
 	}
 	
+	public void createMap()
+	{
+		for(int i = 0 ; i < termList.size(); i++)
+		{
+			Term t = termList.get(i);
+			TermData td = new TermData(t);
+			map.put(t.term_value, td);
+		}
+	}
+	
 	public heapTerm[] getTopK()
 	{
 		return topKTerms.getList();
@@ -103,21 +118,23 @@ public class Indexer
 	{
 		topKTerms.print();
 	}
-	
-	
-	
-	
-}
-class ListPair
-{
-	LinkedList<String> ListSortedByDoc;
-	LinkedList<String> ListSortedByString;
-	
-	ListPair(Term T)
+
+	public void getTerm(String s) 
 	{
-		ArrayList<Posting> list = T.postingsList;
-		
+		TermData d = map.get(s);
+		System.out.println(d.postingsListSortedByDoc);
+		System.out.println("######");
+		for(int i = 0 ; i < d.postingsListSortedByFrequency.size(); i++)
+		{
+			System.out.print(d.postingsListSortedByFrequency.get(i).docId + " ");
+		}
 		
 	}
+	
+	
+	
+	
 }
+
+
 

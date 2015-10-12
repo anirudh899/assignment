@@ -12,7 +12,7 @@ public class CSE535Assignment {
 
 	public static void main(String[] args) 
 	{
-		long millis = System.currentTimeMillis() % 1000;
+		long startTime = System.nanoTime();
 		
 		String input_file_name =  args[0];
 		String log_file_name = args[1];
@@ -20,13 +20,14 @@ public class CSE535Assignment {
 		String query_file_name = args[3];
 		
 		Indexer i = new Indexer(input_file_name,top_k);
+		i.getTerm("-day");
 		
-		i.printTopK();
+		//i.printTopK();
 		
 	
-		long millis2 = System.currentTimeMillis() % 1000;
-		
-		System.out.println(millis +" " + millis2);
+		long endTime = System.nanoTime();
+		System.out.println();
+		System.out.println("Took "+(endTime - startTime) + " ns"); 
 
 	}
 	

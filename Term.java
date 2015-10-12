@@ -2,6 +2,9 @@ package code;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedList;
 
 public class Term 
 {
@@ -59,5 +62,41 @@ class Posting
 	String docId;
 	int term_frequency;
 }
+class TermData
+{
+	LinkedList<String> postingsListSortedByDoc;
+	LinkedList<Posting> postingsListSortedByFrequency;
+	int count;
+	
+	
+	TermData(Term T)
+	{
+		postingsListSortedByDoc = new LinkedList<String>();
+		postingsListSortedByFrequency = new LinkedList<Posting>();
+		 
+		
+		count = T.count;
+		ArrayList<Posting> list = T.postingsList;
+		for(int i = 0; i < list.size(); i++)
+		{
+			postingsListSortedByDoc.add(list.get(i).docId);
+			
+			postingsListSortedByFrequency.add(list.get(i));
+		}
+		
+		Collections.sort(postingsListSortedByDoc);
+		Collections.sort(postingsListSortedByFrequency,new PostingComparator());
+		
+	}
+}
 
+class PostingComparator implements Comparator<Posting>
+{
+
+	public int compare(Posting p1, Posting p2) 
+	{
+		return p2.term_frequency - p1.term_frequency;
+
+	}
+}
 
