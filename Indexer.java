@@ -131,6 +131,12 @@ public class Indexer
 		
 	}
 	
+	public TermData getTermData(String s)
+	{
+		TermData d = map.get(s);	
+		return d;
+	}
+	
 	
 	
 	

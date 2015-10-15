@@ -100,3 +100,12 @@ class PostingComparator implements Comparator<Posting>
 	}
 }
 
+class docIdComparator implements Comparator<Posting>
+{
+
+	public int compare(Posting p1, Posting p2) 
+	{
+		return p1.docId.compareTo(p2.docId);
+
+	}
+}
