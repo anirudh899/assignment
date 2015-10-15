@@ -159,21 +159,24 @@ public class CSE535Assignment {
 			for(int i = 1; i < list.size(); i++)
 			{
 				LinkedList<Posting> curList = list.get(i).postingsListSortedByFrequency;
-				for(int cur = 0; cur< curList.size(); cur++)
+				LinkedList<Posting> toAddList = new LinkedList<Posting>();
+				for(int cur = 0; cur < curList.size(); cur++)
 				{
 					String curDoc = curList.get(cur).docId;
 					int p = 0;
 					for(p = 0 ; p < tempList.size(); p++)
 					{
 						comparisions ++;
-						if(curDoc.equals(tempList.get(p).docId));
+						if(curDoc.equals(tempList.get(p).docId))
 							break;
 					}
 					
 					if(p == tempList.size())
-						tempList.add(curList.get(cur));
+						toAddList.add(curList.get(cur));
 					
 				}
+				
+				tempList.addAll(toAddList);
 				
 			}
 			
@@ -206,6 +209,7 @@ public class CSE535Assignment {
 			for(int i = 1; i < list.size(); i++)
 			{
 				LinkedList<Posting> curList = list.get(i).postingsListSortedByFrequency;
+				LinkedList<Posting> toAddList = new LinkedList<Posting>();
 				for(int cur = 0; cur< curList.size(); cur++)
 				{
 					String curDoc = curList.get(cur).docId;
@@ -213,15 +217,16 @@ public class CSE535Assignment {
 					for(p = 0 ; p < tempList1.size(); p++)
 					{
 						comparisions ++;
-						if(curDoc.equals(tempList1.get(p).docId));
+						if(curDoc.equals(tempList1.get(p).docId))
 							break;
 					}
 					
 					if(p == tempList1.size())
-						tempList1.add(curList.get(cur));
+						toAddList.add(curList.get(cur));
 					
 				}
 				
+				tempList1.addAll(toAddList);
 			}	
 			
 			{
