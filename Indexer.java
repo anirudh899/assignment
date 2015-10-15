@@ -122,12 +122,15 @@ public class Indexer
 	public void getTerm(String s) 
 	{
 		TermData d = map.get(s);
+		System.out.println(s);
 		System.out.println(d.postingsListSortedByDoc);
 		System.out.println("######");
 		for(int i = 0 ; i < d.postingsListSortedByFrequency.size(); i++)
 		{
 			System.out.print(d.postingsListSortedByFrequency.get(i).docId + " ");
 		}
+		
+		System.out.println();
 		
 	}
 	

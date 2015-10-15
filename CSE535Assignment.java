@@ -25,8 +25,10 @@ public class CSE535Assignment {
 	//	ArrayList<ArrayList<String>> queryList = parseQueryFile(query_file_name);
 		ArrayList<ArrayList<String>> queryList = new ArrayList<ArrayList<String>>();
 		ArrayList<String> a = new ArrayList<String>();
-		a.add("Africa");
-		a.add("Agenci");
+		a.add("Shr");
+		a.add("October");
+		a.add("Qtly");
+		
 		queryList.add(a);
 	
 		
@@ -102,6 +104,7 @@ public class CSE535Assignment {
 		{
 			
 			String term = termList.get(j);
+			index.getTerm(term);
 			TermData td = index.getTermData(term);
 			
 			
@@ -113,23 +116,6 @@ public class CSE535Assignment {
 			}
 			else
 			{
-				//print to log both the lists with get posting
-			/*	System.out.println(term);
-				for(int i = 0 ; i < td.postingsListSortedByDoc.size(); i++)
-				{
-					System.out.println(td.postingsListSortedByDoc.get(i));
-					
-				}
-				System.out.println("########");
-				{
-					for(int i = 0 ; i < td.postingsListSortedByFrequency.size();i++)
-					{
-						System.out.println(td.postingsListSortedByFrequency.get(i).docId + " " + td.postingsListSortedByFrequency.get(i).term_frequency);
-						
-					}
-				}
-				*/
-				
 			
 				list.add(td);
 			}
@@ -137,6 +123,7 @@ public class CSE535Assignment {
 		}
 		
 		TaatOr(list,outputFile);
+		TaatAnd(list,outputFile);
 		
 		
 		
@@ -144,8 +131,9 @@ public class CSE535Assignment {
 		
 	}
 	
-	public static void TaatOr(ArrayList<TermData> list, String outputFile)
+	public static void TaatOr(ArrayList<TermData> termDatalist, String outputFile)
 	{
+		ArrayList<TermData> list = new ArrayList<TermData>(termDatalist);
 		int comparisions = 0;
 		if(list.size() == 0)
 		{
@@ -153,12 +141,12 @@ public class CSE535Assignment {
 		}
 		else
 		{
-			for(int i = 0 ; i < list.size(); i++)
+			/*for(int i = 0 ; i < list.size(); i++)
 			{
 				System.out.println("initially count : " + list.get(i).count + "size : " + list.get(i).postingsListSortedByFrequency.size());
 				
 				
-			}
+			}*/
 			LinkedList<Posting> tempList = new LinkedList<Posting>(list.get(0).postingsListSortedByFrequency);
 			
 			for(int i = 1; i < list.size(); i++)
@@ -188,9 +176,9 @@ public class CSE535Assignment {
 			
 			{
 				Collections.sort(tempList, new docIdComparator());
-				for(int i = 0 ; i < tempList.size(); i++)
+				/*for(int i = 0 ; i < tempList.size(); i++)
 						System.out.println(tempList.get(i).docId);
-				System.out.println("comparisions = " + comparisions);
+				System.out.println("comparisions = " + comparisions);*/
 					
 				//print the comparisions used, documents found (tempList.size()) and seconds used
 				// to the output file.
@@ -200,12 +188,12 @@ public class CSE535Assignment {
 			
 			// now optimized
 			Collections.sort(list, new CountComparator());
-			for(int i = 0 ; i < list.size(); i++)
+		/*	for(int i = 0 ; i < list.size(); i++)
 			{
 				System.out.println("count : " + list.get(i).count + "size :" + list.get(i).postingsListSortedByFrequency.size());
 				
 				
-			}
+			}*/
 			comparisions = 0 ;
 			
 			//repeat.
@@ -236,9 +224,9 @@ public class CSE535Assignment {
 			
 			{
 				Collections.sort(tempList1, new docIdComparator());
-				for(int i = 0 ; i < tempList1.size(); i++)
+				/*for(int i = 0 ; i < tempList1.size(); i++)
 						System.out.println(tempList1.get(i).docId);
-				System.out.println("comparisions new = " + comparisions);
+				System.out.println("comparisions new = " + comparisions);*/
 
 				// print optimal comparisions and final result here.
 			}
@@ -247,20 +235,86 @@ public class CSE535Assignment {
 		
 	}
 	
-	public static void TaatAnd(ArrayList<TermData> list, String outputFile)
+	public static void TaatAnd(ArrayList<TermData> termDatalist, String outputFile)
 	{
+		ArrayList<TermData> list = new ArrayList<TermData>(termDatalist);
 		if(list.size() == 0)
 		{
 			// print appropriate message in log file
 		}
 		else
 		{
+			LinkedList<Posting> tempList = new LinkedList<Posting>(list.get(0).postingsListSortedByFrequency);
+			int comparisions = 0;
+			for(int i = 1 ; i < list.size(); i++)
+			{
+				LinkedList<Posting> curList = list.get(i).postingsListSortedByFrequency;
+				LinkedList<Posting> newTemp = new LinkedList<Posting>();
+				for(int cur = 1; cur < curList.size(); cur++)
+				{
+					String curDoc = curList.get(cur).docId;
+					for(int p = 0 ; p < tempList.size(); p++)
+					{
+						comparisions ++;	
+						String tempDoc = tempList.get(p).docId;
+						
+						if(curDoc.equals(tempDoc))
+							newTemp.add(curList.get(cur));
+						
+					}
 			
+				}
+				
+				tempList.clear();
+				tempList.addAll(newTemp);
+				
+			}
 			
+			{
+				// print to output file here.
+				Collections.sort(tempList, new docIdComparator());
+				for(int i = 0 ; i < tempList.size(); i++)
+					System.out.println(tempList.get(i).docId);
+				System.out.println("comparisions = " + comparisions);
+			}
 			
+			// now optimized
+			Collections.sort(list, new CountComparator());
+			comparisions = 0;
 			
+			LinkedList<Posting> tempList1 = new LinkedList<Posting>(list.get(0).postingsListSortedByFrequency);
 			
+			for(int i = 1 ; i < list.size(); i++)
+			{
+				LinkedList<Posting> curList1 = list.get(i).postingsListSortedByFrequency;
+				LinkedList<Posting> newTemp1 = new LinkedList<Posting>();
+				for(int cur = 1; cur < curList1.size(); cur++)
+				{
+					String curDoc = curList1.get(cur).docId;
+					for(int p = 0 ; p < tempList1.size(); p++)
+					{
+						comparisions ++;	
+						String tempDoc = tempList1.get(p).docId;
+						
+						if(curDoc.equals(tempDoc))
+							newTemp1.add(curList1.get(cur));
+						
+					}
 			
+				}
+				
+				tempList1.clear();
+				tempList1.addAll(newTemp1);
+				
+			}
+			
+			{
+				// print to output file here.
+				Collections.sort(tempList1, new docIdComparator());
+				for(int i = 0 ; i < tempList1.size(); i++)
+					System.out.println(tempList1.get(i).docId);
+				System.out.println("comparisions new = " + comparisions);
+			}
 			
 			
 		}
