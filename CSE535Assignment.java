@@ -153,8 +153,13 @@ public class CSE535Assignment {
 		}
 		else
 		{
-			
-			LinkedList<Posting> tempList = list.get(0).postingsListSortedByFrequency;
+			for(int i = 0 ; i < list.size(); i++)
+			{
+				System.out.println("initially count : " + list.get(i).count + "size : " + list.get(i).postingsListSortedByFrequency.size());
+				
+				
+			}
+			LinkedList<Posting> tempList = new LinkedList<Posting>(list.get(0).postingsListSortedByFrequency);
 			
 			for(int i = 1; i < list.size(); i++)
 			{
@@ -197,22 +202,22 @@ public class CSE535Assignment {
 			Collections.sort(list, new CountComparator());
 			for(int i = 0 ; i < list.size(); i++)
 			{
-				System.out.println("count : " + list.get(i).count);
+				System.out.println("count : " + list.get(i).count + "size :" + list.get(i).postingsListSortedByFrequency.size());
 				
 				
 			}
 			comparisions = 0 ;
 			
 			//repeat.
-			LinkedList<Posting> tempList1 = list.get(0).postingsListSortedByFrequency;
+			LinkedList<Posting> tempList1 = new LinkedList<Posting>(list.get(0).postingsListSortedByFrequency);
 			
 			for(int i = 1; i < list.size(); i++)
 			{
-				LinkedList<Posting> curList = list.get(i).postingsListSortedByFrequency;
-				LinkedList<Posting> toAddList = new LinkedList<Posting>();
-				for(int cur = 0; cur< curList.size(); cur++)
+				LinkedList<Posting> curList1 = list.get(i).postingsListSortedByFrequency;
+				LinkedList<Posting> toAddList1 = new LinkedList<Posting>();
+				for(int cur = 0; cur< curList1.size(); cur++)
 				{
-					String curDoc = curList.get(cur).docId;
+					String curDoc = curList1.get(cur).docId;
 					int p = 0;
 					for(p = 0 ; p < tempList1.size(); p++)
 					{
@@ -222,11 +227,11 @@ public class CSE535Assignment {
 					}
 					
 					if(p == tempList1.size())
-						toAddList.add(curList.get(cur));
+						toAddList1.add(curList1.get(cur));
 					
 				}
 				
-				tempList1.addAll(toAddList);
+				tempList1.addAll(toAddList1);
 			}	
 			
 			{
