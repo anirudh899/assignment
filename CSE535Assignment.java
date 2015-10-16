@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.LinkedList;
+import java.util.ListIterator;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -12,6 +13,7 @@ import java.util.Comparator;
 
 public class CSE535Assignment {
 
+	
 	public static void main(String[] args) 
 	{
 		long startTime = System.nanoTime();
@@ -25,9 +27,17 @@ public class CSE535Assignment {
 	//	ArrayList<ArrayList<String>> queryList = parseQueryFile(query_file_name);
 		ArrayList<ArrayList<String>> queryList = new ArrayList<ArrayList<String>>();
 		ArrayList<String> a = new ArrayList<String>();
-		a.add("Shr");
+		/*a.add("Shr");
+		a.add("ct");
+		a.add("qtr");
 		a.add("October");
-		a.add("Qtly");
+		
+		a.add("Qtly");*/
+		
+		a.add("\"i");
+		a.add("\"it");
+		a.add("\"the");
+		
 		
 		queryList.add(a);
 	
@@ -122,9 +132,9 @@ public class CSE535Assignment {
 			
 		}
 		
-		TaatOr(list,outputFile);
-		TaatAnd(list,outputFile);
-		
+	//	TaatOr(list,outputFile);
+	//	TaatAnd(list,outputFile);
+		DaatOr(list,outputFile);
 		
 		
 		
@@ -320,21 +330,6 @@ public class CSE535Assignment {
 		}
 		
 	}
-	public static void DaatOr(ArrayList<TermData> list, String outputFile)
-	{
-		if(list.size() == 0)
-		{
-			// print appropriate message in log file
-		}
-		else
-		{
-			
-			
-			
-			
-		}
-		
-	}
 	public static void DaatAnd(ArrayList<TermData> list, String outputFile)
 	{
 		if(list.size() == 0)
@@ -345,12 +340,97 @@ public class CSE535Assignment {
 		{
 			
 			
+				
+				
+			
+			
+			
+				
 			
 			
 		}
 		
 	}
+	public static void DaatOr(ArrayList<TermData> list, String outputFile)
+	{
+		ArrayList<String> result = new ArrayList<String>();
+		if(list.size() == 0)
+		{
+			// print appropriate message in log file
+		}
+		else
+		{
+			ArrayList<LinkedList<String>> listOfLists = new ArrayList<LinkedList<String>>();			
+				for(int i = 0 ; i < list.size(); i++)
+					listOfLists.add(list.get(i).postingsListSortedByDoc);
+			
+		
+			ArrayList<Integer> listOfIndices = new ArrayList<Integer>();
+				for(int i = 0 ; i < listOfLists.size(); i++)
+					listOfIndices.add(0);
+				
+			
+			
+			while(isValid(listOfLists,listOfIndices) == true)
+			{
+				String minString = "99999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999";
+				int minIndex = -1;
+				
+				for(int i = 0 ; i < listOfLists.size();i++)
+				{
+					int index = listOfIndices.get(i);
+					LinkedList<String> docList = listOfLists.get(i);
+					
+					
+					if(index < docList.size())
+					{
+						String s = docList.get(index);
+						if(s != null)
+						{
+							if(s.compareTo(minString) < 0)
+							{
+								minString = new String(s);
+								minIndex = i;
+							}
+							
+							
+						}
+					}
+				}
+				
+				if(minIndex == -1)
+					break;
+				else
+				{
+					result.add(minString);
+					for(int i = 0 ; i < listOfIndices.size(); i++)
+					{
+						if(i == minIndex)
+							listOfIndices.set(i,listOfIndices.get(i) + 1);
+					}
+				}
+			
+				
+			}
+		
+		}
+		
+		System.out.println("");
+		
+	}
 
+	public static boolean isValid (ArrayList<LinkedList<String>> listofLists, ArrayList<Integer> listofIndices)
+	{
+		
+		for(int i = 0 ; i < listofLists.size(); i++)
+		{
+			LinkedList<String> list = listofLists.get(i);
+			if(list.size() > listofIndices.get(i))
+				return true;
+		}
+		
+		return false;
+	}
 	
 	
 
