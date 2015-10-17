@@ -27,17 +27,22 @@ public class CSE535Assignment {
 	//	ArrayList<ArrayList<String>> queryList = parseQueryFile(query_file_name);
 		ArrayList<ArrayList<String>> queryList = new ArrayList<ArrayList<String>>();
 		ArrayList<String> a = new ArrayList<String>();
-		/*a.add("Shr");
-		a.add("ct");
-		a.add("qtr");
-		a.add("October");
+	//	a.add("Shr");
+		//a.add("ct");
+	//	a.add("qtr");
+	//	a.add("October");
 		
-		a.add("Qtly");*/
+	//	a.add("Qtly");
+		a.add("halved");
+		a.add("hammer");
 		
-		a.add("\"i");
-		a.add("\"it");
-		a.add("\"the");
+		//a.add("\"i");
+		//a.add("\"it");
+		//a.add("\"the");
 		
+		//a.add("-acre");
+		//a.add("Beach");
+		//a.add("Builder");
 		
 		queryList.add(a);
 	
@@ -132,9 +137,10 @@ public class CSE535Assignment {
 			
 		}
 		
-	//	TaatOr(list,outputFile);
-	//	TaatAnd(list,outputFile);
-		DaatOr(list,outputFile);
+		TaatOr(list,outputFile);
+		TaatAnd(list,outputFile);
+	//	DaatOr(list,outputFile);
+	//	DaatAnd(list,outputFile);
 		
 		
 		
@@ -186,9 +192,9 @@ public class CSE535Assignment {
 			
 			{
 				Collections.sort(tempList, new docIdComparator());
-				/*for(int i = 0 ; i < tempList.size(); i++)
+				for(int i = 0 ; i < tempList.size(); i++)
 						System.out.println(tempList.get(i).docId);
-				System.out.println("comparisions = " + comparisions);*/
+				System.out.println("comparisions = " + comparisions);
 					
 				//print the comparisions used, documents found (tempList.size()) and seconds used
 				// to the output file.
@@ -234,9 +240,9 @@ public class CSE535Assignment {
 			
 			{
 				Collections.sort(tempList1, new docIdComparator());
-				/*for(int i = 0 ; i < tempList1.size(); i++)
+				for(int i = 0 ; i < tempList1.size(); i++)
 						System.out.println(tempList1.get(i).docId);
-				System.out.println("comparisions new = " + comparisions);*/
+				System.out.println("comparisions new = " + comparisions);
 
 				// print optimal comparisions and final result here.
 			}
@@ -339,21 +345,99 @@ public class CSE535Assignment {
 		else
 		{
 			
-			
+			//get max of first indices of all docs;
+			// then move the first indices of the remaining docs till they equal or exceed the max.
+			//if all of them point to max, then add the max to the result and move that mx forward.
+			ArrayList<String> result = new ArrayList<String>();
+			ArrayList<LinkedList<String>> listOfLists = new ArrayList<LinkedList<String>>();			
+			for(int i = 0 ; i < list.size(); i++)
+				listOfLists.add(list.get(i).postingsListSortedByDoc);
+		
+	
+			ArrayList<Integer> listOfIndices = new ArrayList<Integer>();
+			for(int i = 0 ; i < listOfLists.size(); i++)
+				listOfIndices.add(0);
 				
+			while(isValid2(listOfLists,listOfIndices))
+			{
+				String maxString = "";
+				int max_index = -1;
 				
-			
-			
-			
+				for(int i = 0 ; i < listOfLists.size();i++)
+				{
+					int index = listOfIndices.get(i);
+					LinkedList<String> docList = listOfLists.get(i);
+					
+					if(index < docList.size())
+					{
+						String s = docList.get(index);
+						if(s.compareTo(maxString) > 0)
+						{
+							maxString = new String(s);
+							max_index = i;
+						}
+					
+					}
 				
+				}
+				
+				// move forward.
+				for(int i = 0; i < listOfLists.size(); i++)
+				{
+					if(i != max_index)
+					{
+						LinkedList<String> docList = listOfLists.get(i);
+						int j = listOfIndices.get(i);
+						while(j<docList.size() && docList.get(j).compareTo(maxString) < 0)
+							j++;
+						
+						listOfIndices.set(i, j);
+					}
+					
+				}
+				
+				// now check.
+				int j = 0;
+				for(j = 0; j < listOfLists.size(); j++)
+				{
+					int index = listOfIndices.get(j);
+					LinkedList<String> docList = listOfLists.get(j);
+					
+					if(index >= docList.size())
+					{
+						// finished !!.. print and return.
+						System.out.println("");
+						return;
+					}
+					
+					else
+					{
+						
+						String s = docList.get(index);
+						if(s.equals(maxString) == false)
+							break;
+						
+					}
+					
+				}
+				
+				if(j == listOfLists.size())
+					result.add(maxString);
+				
+				// setmaxIndex
+				listOfIndices.set(max_index, listOfIndices.get(max_index) + 1);
 			
+			}
 			
+			System.out.println("");
+		
 		}
 		
 	}
 	public static void DaatOr(ArrayList<TermData> list, String outputFile)
 	{
 		ArrayList<String> result = new ArrayList<String>();
+		int comparisions = 0;
 		if(list.size() == 0)
 		{
 			// print appropriate message in log file
@@ -387,6 +471,7 @@ public class CSE535Assignment {
 						String s = docList.get(index);
 						if(s != null)
 						{
+							comparisions++;
 							if(s.compareTo(minString) < 0)
 							{
 								minString = new String(s);
@@ -406,7 +491,10 @@ public class CSE535Assignment {
 					for(int i = 0 ; i < listOfIndices.size(); i++)
 					{
 						if(i == minIndex)
+						{
 							listOfIndices.set(i,listOfIndices.get(i) + 1);
+							break;
+						}
 					}
 				}
 			
@@ -431,7 +519,18 @@ public class CSE535Assignment {
 		
 		return false;
 	}
-	
+	public static boolean isValid2 (ArrayList<LinkedList<String>> listofLists, ArrayList<Integer> listofIndices)
+	{
+		
+		for(int i = 0 ; i < listofLists.size(); i++)
+		{
+			LinkedList<String> list = listofLists.get(i);
+			if(list.size() < listofIndices.get(i))
+				return false;
+		}
+		
+		return true;
+	}
 	
 
 }
