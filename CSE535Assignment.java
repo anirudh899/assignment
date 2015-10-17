@@ -266,7 +266,7 @@ public class CSE535Assignment {
 			{
 				LinkedList<Posting> curList = list.get(i).postingsListSortedByFrequency;
 				LinkedList<Posting> newTemp = new LinkedList<Posting>();
-				for(int cur = 1; cur < curList.size(); cur++)
+				for(int cur = 0; cur < curList.size(); cur++)
 				{
 					String curDoc = curList.get(cur).docId;
 					for(int p = 0 ; p < tempList.size(); p++)
@@ -304,7 +304,7 @@ public class CSE535Assignment {
 			{
 				LinkedList<Posting> curList1 = list.get(i).postingsListSortedByFrequency;
 				LinkedList<Posting> newTemp1 = new LinkedList<Posting>();
-				for(int cur = 1; cur < curList1.size(); cur++)
+				for(int cur = 0; cur < curList1.size(); cur++)
 				{
 					String curDoc = curList1.get(cur).docId;
 					for(int p = 0 ; p < tempList1.size(); p++)
