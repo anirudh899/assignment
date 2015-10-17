@@ -138,8 +138,12 @@ public class heap
 	{
 		for(int i = 0; i < heap.length; i++)
 		{
-			System.out.println(heap[i].term_value + " " + heap[i].count);
+			System.out.print(heap[i].term_value );
+			if(i != heap.length - 1)
+				System.out.print(", ");
+			
 		}
+		
 	}
 
 

@@ -67,13 +67,14 @@ class TermData
 	LinkedList<String> postingsListSortedByDoc;
 	LinkedList<Posting> postingsListSortedByFrequency;
 	int count;
+	String term;
 	
 	
 	TermData(Term T)
 	{
 		postingsListSortedByDoc = new LinkedList<String>();
 		postingsListSortedByFrequency = new LinkedList<Posting>();
-		 
+		term = new String(T.term_value);
 		
 		count = T.count;
 		ArrayList<Posting> list = T.postingsList;

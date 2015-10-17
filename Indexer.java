@@ -67,6 +67,9 @@ public class Indexer
 			e.printStackTrace();
 		}
 	    
+	    System.out.println("FUNCTION: getTopK " + top_K);
+	    System.out.print("Result: ");
+	    printTopK();
 	  
 	    
 	}
@@ -123,6 +126,7 @@ public class Indexer
 	{
 		TermData d = map.get(s);
 		System.out.println(s);
+		System.out.println("count : " + d.count );
 		System.out.println(d.postingsListSortedByDoc);
 		System.out.println("######");
 		for(int i = 0 ; i < d.postingsListSortedByFrequency.size(); i++)

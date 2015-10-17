@@ -2,8 +2,10 @@ package code;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.LinkedList;
 import java.util.ListIterator;
 import java.util.ArrayList;
@@ -16,37 +18,25 @@ public class CSE535Assignment {
 	
 	public static void main(String[] args) 
 	{
-		long startTime = System.nanoTime();
+		
 		
 		String input_file_name =  args[0];
 		String log_file_name = args[1];
 		int top_k = Integer.parseInt(args[2]);
 		String query_file_name = args[3];
 		
+		PrintStream out = null;
+		try {
+			out = new PrintStream(new FileOutputStream(log_file_name));
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+        System.setOut(out);
 		Indexer index = new Indexer(input_file_name,top_k);
-	//	ArrayList<ArrayList<String>> queryList = parseQueryFile(query_file_name);
-		ArrayList<ArrayList<String>> queryList = new ArrayList<ArrayList<String>>();
-		ArrayList<String> a = new ArrayList<String>();
-	//	a.add("Shr");
-		//a.add("ct");
-	//	a.add("qtr");
-	//	a.add("October");
+		ArrayList<ArrayList<String>> queryList = parseQueryFile(query_file_name);
 		
-	//	a.add("Qtly");
-		a.add("halved");
-		a.add("hammer");
-		
-		//a.add("\"i");
-		//a.add("\"it");
-		//a.add("\"the");
-		
-		//a.add("-acre");
-		//a.add("Beach");
-		//a.add("Builder");
-		
-		queryList.add(a);
 	
-		
 		for(int i = 0 ; i < queryList.size(); i++)
 		{
 			ArrayList<String> termList = queryList.get(i);
@@ -54,13 +44,7 @@ public class CSE535Assignment {
 		}
 		
 		
-		//i.printTopK();
-		
 	
-		long endTime = System.nanoTime();
-		System.out.println();
-		System.out.println("Took "+(endTime - startTime) + " ns"); 
-
 	}
 	
 	
@@ -119,31 +103,49 @@ public class CSE535Assignment {
 		{
 			
 			String term = termList.get(j);
-			index.getTerm(term);
+		//	index.getTerm(term);
 			TermData td = index.getTermData(term);
+			System.out.println("\nFUNCTION: getPostings " + term);
 			
 			
 			
 			if(td == null)
 			{
 				// Add logic to print NULL;
+				System.out.println("term not found");
 				
 			}
 			else
 			{
-			
+				System.out.print("Ordered by doc IDs: ");
+				for(int i=0;i<td.postingsListSortedByDoc.size(); i++)
+				{
+					System.out.print(td.postingsListSortedByDoc.get(i));
+					if(i != td.postingsListSortedByDoc.size() - 1)
+						System.out.print(", ");
+				}
+				System.out.println("");
+				
+				System.out.print("Ordered by TF: ");
+				for(int i = 0; i < td.postingsListSortedByFrequency.size();i++)
+				{
+					
+					System.out.print(td.postingsListSortedByFrequency.get(i).docId );
+					if(i != td.postingsListSortedByFrequency.size() - 1)
+						System.out.print(", ");
+				
+				}
+				
 				list.add(td);
 			}
 			
 		}
 		
-		TaatOr(list,outputFile);
 		TaatAnd(list,outputFile);
-	//	DaatOr(list,outputFile);
-	//	DaatAnd(list,outputFile);
-		
-		
-		
+		TaatOr(list,outputFile);
+		DaatAnd(list,outputFile);
+		DaatOr(list,outputFile);
+	
 		
 	}
 	
@@ -163,6 +165,7 @@ public class CSE535Assignment {
 				
 				
 			}*/
+			long startTime1 = System.currentTimeMillis();
 			LinkedList<Posting> tempList = new LinkedList<Posting>(list.get(0).postingsListSortedByFrequency);
 			
 			for(int i = 1; i < list.size(); i++)
@@ -192,24 +195,23 @@ public class CSE535Assignment {
 			
 			{
 				Collections.sort(tempList, new docIdComparator());
-				for(int i = 0 ; i < tempList.size(); i++)
-						System.out.println(tempList.get(i).docId);
-				System.out.println("comparisions = " + comparisions);
-					
-				//print the comparisions used, documents found (tempList.size()) and seconds used
-				// to the output file.
-				
-				
+				long endTime1= System.currentTimeMillis();
+				System.out.print("\nFUNCTION: termAtATimeQueryOr: ");
+				for(int i =0; i < list.size(); i++)
+				{
+					System.out.print(list.get(i).term);
+					if(i != list.size() - 1)
+						System.out.print(", ");
+				}
+				System.out.println("\n" + tempList.size() + " documents were found");
+				System.out.println( comparisions + " comparisions were made");
+				System.out.println(((endTime1 - startTime1)/1000) + " seconds were used");
+			
 			}
 			
 			// now optimized
 			Collections.sort(list, new CountComparator());
-		/*	for(int i = 0 ; i < list.size(); i++)
-			{
-				System.out.println("count : " + list.get(i).count + "size :" + list.get(i).postingsListSortedByFrequency.size());
-				
-				
-			}*/
+	
 			comparisions = 0 ;
 			
 			//repeat.
@@ -240,11 +242,14 @@ public class CSE535Assignment {
 			
 			{
 				Collections.sort(tempList1, new docIdComparator());
+				System.out.println(comparisions + " comparisons are made with optimization");
+				System.out.print("Result: ");
 				for(int i = 0 ; i < tempList1.size(); i++)
-						System.out.println(tempList1.get(i).docId);
-				System.out.println("comparisions new = " + comparisions);
-
-				// print optimal comparisions and final result here.
+				{
+					System.out.print(tempList1.get(i).docId);
+					if(i != tempList1.size() - 1)
+						System.out.print(", ");
+				}
 			}
 		
 		}
@@ -254,28 +259,36 @@ public class CSE535Assignment {
 	public static void TaatAnd(ArrayList<TermData> termDatalist, String outputFile)
 	{
 		ArrayList<TermData> list = new ArrayList<TermData>(termDatalist);
+		
 		if(list.size() == 0)
 		{
 			// print appropriate message in log file
 		}
+		
 		else
 		{
+			long startTime1 = System.currentTimeMillis();
 			LinkedList<Posting> tempList = new LinkedList<Posting>(list.get(0).postingsListSortedByFrequency);
 			int comparisions = 0;
 			for(int i = 1 ; i < list.size(); i++)
 			{
 				LinkedList<Posting> curList = list.get(i).postingsListSortedByFrequency;
 				LinkedList<Posting> newTemp = new LinkedList<Posting>();
-				for(int cur = 0; cur < curList.size(); cur++)
+				for(int p = 0 ; p < tempList.size(); p++)
 				{
-					String curDoc = curList.get(cur).docId;
-					for(int p = 0 ; p < tempList.size(); p++)
+					String tempDoc = tempList.get(p).docId;
+					
+					for(int cur = 0; cur < curList.size(); cur++)
 					{
-						comparisions ++;	
-						String tempDoc = tempList.get(p).docId;
 						
+						comparisions ++;	
+						
+						String curDoc = curList.get(cur).docId;
 						if(curDoc.equals(tempDoc))
+						{
 							newTemp.add(curList.get(cur));
+							break;
+						}
 						
 					}
 			
@@ -289,9 +302,19 @@ public class CSE535Assignment {
 			{
 				// print to output file here.
 				Collections.sort(tempList, new docIdComparator());
-				for(int i = 0 ; i < tempList.size(); i++)
-					System.out.println(tempList.get(i).docId);
-				System.out.println("comparisions = " + comparisions);
+				long endTime1 = System.currentTimeMillis();
+				System.out.print("\nFUNCTION: termAtATimeQueryAnd: ");
+				for(int i =0; i < list.size(); i++)
+				{
+					System.out.print(list.get(i).term);
+					if(i != list.size() - 1)
+						System.out.print(", ");
+				}
+				System.out.println("\n" + tempList.size() + " documents were found");
+				System.out.println( comparisions + " comparisions were made");
+				System.out.println(((endTime1 - startTime1)/1000) + " seconds were used");
+				
+				
 			}
 			
 			// now optimized
@@ -304,16 +327,21 @@ public class CSE535Assignment {
 			{
 				LinkedList<Posting> curList1 = list.get(i).postingsListSortedByFrequency;
 				LinkedList<Posting> newTemp1 = new LinkedList<Posting>();
-				for(int cur = 0; cur < curList1.size(); cur++)
+				
+				
+				for(int p = 0 ; p < tempList1.size(); p++)
 				{
-					String curDoc = curList1.get(cur).docId;
-					for(int p = 0 ; p < tempList1.size(); p++)
+					String tempDoc = tempList1.get(p).docId;
+					for(int cur = 0; cur < curList1.size(); cur++)
 					{
+						String curDoc = curList1.get(cur).docId;
 						comparisions ++;	
-						String tempDoc = tempList1.get(p).docId;
-						
+					
 						if(curDoc.equals(tempDoc))
+						{
 							newTemp1.add(curList1.get(cur));
+							break;
+						}
 						
 					}
 			
@@ -327,9 +355,15 @@ public class CSE535Assignment {
 			{
 				// print to output file here.
 				Collections.sort(tempList1, new docIdComparator());
+				System.out.println(comparisions + " comparisons are made with optimization");
+				System.out.print("Result: ");
 				for(int i = 0 ; i < tempList1.size(); i++)
-					System.out.println(tempList1.get(i).docId);
-				System.out.println("comparisions new = " + comparisions);
+				{
+					System.out.print(tempList1.get(i).docId);
+					if(i != tempList1.size() - 1)
+						System.out.print(", ");
+				}
+				
 			}
 			
 			
@@ -338,16 +372,25 @@ public class CSE535Assignment {
 	}
 	public static void DaatAnd(ArrayList<TermData> list, String outputFile)
 	{
+		int comparisions = 0;
 		if(list.size() == 0)
 		{
 			// print appropriate message in log file
 		}
 		else
 		{
-			
+			long startTime = System.currentTimeMillis();
 			//get max of first indices of all docs;
 			// then move the first indices of the remaining docs till they equal or exceed the max.
 			//if all of them point to max, then add the max to the result and move that mx forward.
+			System.out.print("\nFUNCTION: docAtATimeQueryAnd ");
+			for(int i =0; i < list.size(); i++)
+			{
+				System.out.print(list.get(i).term);
+				if(i != list.size() - 1)
+					System.out.print(", ");
+			}
+			
 			ArrayList<String> result = new ArrayList<String>();
 			ArrayList<LinkedList<String>> listOfLists = new ArrayList<LinkedList<String>>();			
 			for(int i = 0 ; i < list.size(); i++)
@@ -371,6 +414,7 @@ public class CSE535Assignment {
 					if(index < docList.size())
 					{
 						String s = docList.get(index);
+						comparisions++;
 						if(s.compareTo(maxString) > 0)
 						{
 							maxString = new String(s);
@@ -389,7 +433,10 @@ public class CSE535Assignment {
 						LinkedList<String> docList = listOfLists.get(i);
 						int j = listOfIndices.get(i);
 						while(j<docList.size() && docList.get(j).compareTo(maxString) < 0)
+						{
+							comparisions++;
 							j++;
+						}
 						
 						listOfIndices.set(i, j);
 					}
@@ -406,7 +453,18 @@ public class CSE535Assignment {
 					if(index >= docList.size())
 					{
 						// finished !!.. print and return.
-						System.out.println("");
+						
+						long endTime = System.currentTimeMillis();
+						System.out.println("\n" + result.size() + " documents are found");
+						System.out.println(comparisions + " comparisions are made");
+						System.out.println((endTime-startTime)/1000 + " seconds are used");
+						System.out.print("Result: ");
+						for(int i = 0 ; i < result.size(); i++)
+						{
+							System.out.print(result.get(i));
+							if(i != result.size() - 1)
+								System.out.print(", ");
+						}
 						return;
 					}
 					
@@ -414,6 +472,7 @@ public class CSE535Assignment {
 					{
 						
 						String s = docList.get(index);
+						comparisions++;
 						if(s.equals(maxString) == false)
 							break;
 						
@@ -429,13 +488,26 @@ public class CSE535Assignment {
 			
 			}
 			
-			System.out.println("");
+			long endTime = System.currentTimeMillis();
+			System.out.println("\n" + result.size() + " documents are found");
+			System.out.println(comparisions + " comparisions are made");
+			System.out.println((endTime-startTime)/1000 + " seconds are used");
+			System.out.print("Result: ");
+			for(int i = 0 ; i < result.size(); i++)
+			{
+				System.out.print(result.get(i));
+				if(i != result.size() - 1)
+					System.out.print(", ");
+			}
+			
 		
 		}
 		
 	}
 	public static void DaatOr(ArrayList<TermData> list, String outputFile)
 	{
+		// !!!! DUPLICATES STILL EXIST  !!!!
+		
 		ArrayList<String> result = new ArrayList<String>();
 		int comparisions = 0;
 		if(list.size() == 0)
@@ -444,6 +516,7 @@ public class CSE535Assignment {
 		}
 		else
 		{
+			long startTime = System.currentTimeMillis();
 			ArrayList<LinkedList<String>> listOfLists = new ArrayList<LinkedList<String>>();			
 				for(int i = 0 ; i < list.size(); i++)
 					listOfLists.add(list.get(i).postingsListSortedByDoc);
@@ -487,23 +560,53 @@ public class CSE535Assignment {
 					break;
 				else
 				{
+					
+					
 					result.add(minString);
-					for(int i = 0 ; i < listOfIndices.size(); i++)
+					for(int i = 0 ; i < listOfLists.size(); i++)
 					{
-						if(i == minIndex)
+						int index = listOfIndices.get(i);
+						LinkedList<String> docList = listOfLists.get(i);
+						if(index < docList.size())
 						{
-							listOfIndices.set(i,listOfIndices.get(i) + 1);
-							break;
+							comparisions++;
+							String s = docList.get(index);
+							if(s.equals(minString))
+								listOfIndices.set(i,index+1);
 						}
+						
+						
+						
 					}
+							
+					
+						
 				}
 			
 				
 			}
+			long endTime = System.currentTimeMillis();
+			
+			System.out.print("\nFUNCTION: docAtATimeQueryOr ");
+			for(int i =0; i < list.size(); i++)
+			{
+				System.out.print(list.get(i).term);
+				if(i != list.size() - 1)
+					System.out.print(", ");
+			}
+			System.out.println("\n" + result.size() + " documents are found");
+			System.out.println(comparisions + " comparisions are made");
+			System.out.println((endTime-startTime)/1000 + " seconds are used");
+			System.out.print("Result: ");
+			for(int i = 0 ; i < result.size(); i++)
+			{
+				System.out.print(result.get(i));
+				if(i != result.size() - 1)
+					System.out.print(", ");
+			}
 		
 		}
 		
-		System.out.println("");
 		
 	}
 
