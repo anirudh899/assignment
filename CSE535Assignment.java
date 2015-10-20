@@ -99,21 +99,22 @@ public class CSE535Assignment {
 	public static void Operate(ArrayList<String> termList, String outputFile,Indexer index)
 	{
 		ArrayList<TermData> list = new ArrayList<TermData> ();
+		boolean ignoreAnd = false;
 		for(int j = 0 ; j < termList.size(); j++)
 		{
 			
 			String term = termList.get(j);
-		//	index.getTerm(term);
 			TermData td = index.getTermData(term);
 			System.out.println("\nFUNCTION: getPostings " + term);
+			
 			
 			
 			
 			if(td == null)
 			{
 				// Add logic to print NULL;
-				System.out.println("term not found");
-				
+				System.out.print("term not found");
+				ignoreAnd = true;
 			}
 			else
 			{
@@ -140,10 +141,37 @@ public class CSE535Assignment {
 			}
 			
 		}
-		
-		TaatAnd(list,outputFile);
+		System.out.print("\nFUNCTION: termAtATimeQueryAnd: ");
+		for(int i =0; i < termList.size(); i++)
+		{
+			System.out.print(termList.get(i));
+			if(i != termList.size() - 1)
+				System.out.print(", ");
+		}
+		TaatAnd(list,outputFile,ignoreAnd);
+		System.out.print("\nFUNCTION: termAtATimeQueryOr: ");
+		for(int i =0; i < termList.size(); i++)
+		{
+			System.out.print(termList.get(i));
+			if(i != termList.size() - 1)
+				System.out.print(", ");
+		}
 		TaatOr(list,outputFile);
-		DaatAnd(list,outputFile);
+		System.out.print("\nFUNCTION: docAtATimeQueryAnd: ");
+		for(int i =0; i < termList.size(); i++)
+		{
+			System.out.print(termList.get(i));
+			if(i != termList.size() - 1)
+				System.out.print(", ");
+		}
+		DaatAnd(list,outputFile,ignoreAnd);
+		System.out.print("\nFUNCTION: docAtATimeQueryOr: ");
+		for(int i =0; i < termList.size(); i++)
+		{
+			System.out.print(termList.get(i));
+			if(i != termList.size() - 1)
+				System.out.print(", ");
+		}
 		DaatOr(list,outputFile);
 	
 		
@@ -155,16 +183,16 @@ public class CSE535Assignment {
 		int comparisions = 0;
 		if(list.size() == 0)
 		{
-			// print appropriate message in log file
+			
+			System.out.println("\n" + "0 documents were found");
+			System.out.println("0 comparisions were made");
+			System.out.println("0 seconds were used");
+			System.out.print("Result: ");
+			
 		}
 		else
 		{
-			/*for(int i = 0 ; i < list.size(); i++)
-			{
-				System.out.println("initially count : " + list.get(i).count + "size : " + list.get(i).postingsListSortedByFrequency.size());
-				
-				
-			}*/
+			
 			long startTime1 = System.currentTimeMillis();
 			LinkedList<Posting> tempList = new LinkedList<Posting>(list.get(0).postingsListSortedByFrequency);
 			
@@ -196,13 +224,7 @@ public class CSE535Assignment {
 			{
 				Collections.sort(tempList, new docIdComparator());
 				long endTime1= System.currentTimeMillis();
-				System.out.print("\nFUNCTION: termAtATimeQueryOr: ");
-				for(int i =0; i < list.size(); i++)
-				{
-					System.out.print(list.get(i).term);
-					if(i != list.size() - 1)
-						System.out.print(", ");
-				}
+				
 				System.out.println("\n" + tempList.size() + " documents were found");
 				System.out.println( comparisions + " comparisions were made");
 				System.out.println(((endTime1 - startTime1)/1000) + " seconds were used");
@@ -256,13 +278,17 @@ public class CSE535Assignment {
 		
 	}
 	
-	public static void TaatAnd(ArrayList<TermData> termDatalist, String outputFile)
+	public static void TaatAnd(ArrayList<TermData> termDatalist, String outputFile, boolean ignoreAnd)
 	{
 		ArrayList<TermData> list = new ArrayList<TermData>(termDatalist);
 		
-		if(list.size() == 0)
+		if(ignoreAnd == true)
 		{
-			// print appropriate message in log file
+			
+			System.out.println("\n"  + "0 documents were found");
+			System.out.println("0 comparisions were made");
+			System.out.println("0 seconds were used");
+			System.out.print("Result: ");
 		}
 		
 		else
@@ -303,13 +329,7 @@ public class CSE535Assignment {
 				// print to output file here.
 				Collections.sort(tempList, new docIdComparator());
 				long endTime1 = System.currentTimeMillis();
-				System.out.print("\nFUNCTION: termAtATimeQueryAnd: ");
-				for(int i =0; i < list.size(); i++)
-				{
-					System.out.print(list.get(i).term);
-					if(i != list.size() - 1)
-						System.out.print(", ");
-				}
+				
 				System.out.println("\n" + tempList.size() + " documents were found");
 				System.out.println( comparisions + " comparisions were made");
 				System.out.println(((endTime1 - startTime1)/1000) + " seconds were used");
@@ -370,26 +390,26 @@ public class CSE535Assignment {
 		}
 		
 	}
-	public static void DaatAnd(ArrayList<TermData> list, String outputFile)
+	public static void DaatAnd(ArrayList<TermData> list, String outputFile,boolean ignoreAnd)
 	{
+		// UPDATE COMPARISIONS PROPERLY, should consider isValid function also 
 		int comparisions = 0;
-		if(list.size() == 0)
+		if(ignoreAnd == true)
 		{
 			// print appropriate message in log file
+			System.out.println("\n"  + "0 documents were found");
+			System.out.println("0 comparisions were made");
+			System.out.println("0 seconds were used");
+			System.out.print("Result: ");
 		}
+		
 		else
 		{
 			long startTime = System.currentTimeMillis();
 			//get max of first indices of all docs;
 			// then move the first indices of the remaining docs till they equal or exceed the max.
 			//if all of them point to max, then add the max to the result and move that mx forward.
-			System.out.print("\nFUNCTION: docAtATimeQueryAnd ");
-			for(int i =0; i < list.size(); i++)
-			{
-				System.out.print(list.get(i).term);
-				if(i != list.size() - 1)
-					System.out.print(", ");
-			}
+			
 			
 			ArrayList<String> result = new ArrayList<String>();
 			ArrayList<LinkedList<String>> listOfLists = new ArrayList<LinkedList<String>>();			
@@ -482,7 +502,7 @@ public class CSE535Assignment {
 				
 				if(j == listOfLists.size())
 					result.add(maxString);
-				
+			
 				// setmaxIndex
 				listOfIndices.set(max_index, listOfIndices.get(max_index) + 1);
 			
@@ -499,20 +519,22 @@ public class CSE535Assignment {
 				if(i != result.size() - 1)
 					System.out.print(", ");
 			}
-			
-		
+					
 		}
 		
 	}
 	public static void DaatOr(ArrayList<TermData> list, String outputFile)
 	{
-		// !!!! DUPLICATES STILL EXIST  !!!!
+		// UPDATE COMPARISIONS PROPERLY, should consider isValid function also.
 		
 		ArrayList<String> result = new ArrayList<String>();
 		int comparisions = 0;
 		if(list.size() == 0)
 		{
-			// print appropriate message in log file
+			System.out.println("\n" + "0 documents are found");
+			System.out.println("0 comparisions are made");
+			System.out.println("0 seconds are used");
+			System.out.print("Result: ");
 		}
 		else
 		{
@@ -524,8 +546,7 @@ public class CSE535Assignment {
 		
 			ArrayList<Integer> listOfIndices = new ArrayList<Integer>();
 				for(int i = 0 ; i < listOfLists.size(); i++)
-					listOfIndices.add(0);
-				
+					listOfIndices.add(0);				
 			
 			
 			while(isValid(listOfLists,listOfIndices) == true)
@@ -537,8 +558,7 @@ public class CSE535Assignment {
 				{
 					int index = listOfIndices.get(i);
 					LinkedList<String> docList = listOfLists.get(i);
-					
-					
+										
 					if(index < docList.size())
 					{
 						String s = docList.get(index);
@@ -549,9 +569,7 @@ public class CSE535Assignment {
 							{
 								minString = new String(s);
 								minIndex = i;
-							}
-							
-							
+							}													
 						}
 					}
 				}
@@ -559,9 +577,7 @@ public class CSE535Assignment {
 				if(minIndex == -1)
 					break;
 				else
-				{
-					
-					
+				{			
 					result.add(minString);
 					for(int i = 0 ; i < listOfLists.size(); i++)
 					{
@@ -575,25 +591,14 @@ public class CSE535Assignment {
 								listOfIndices.set(i,index+1);
 						}
 						
+					}					
 						
-						
-					}
-							
-					
-						
-				}
-			
+				}			
 				
 			}
 			long endTime = System.currentTimeMillis();
 			
-			System.out.print("\nFUNCTION: docAtATimeQueryOr ");
-			for(int i =0; i < list.size(); i++)
-			{
-				System.out.print(list.get(i).term);
-				if(i != list.size() - 1)
-					System.out.print(", ");
-			}
+			
 			System.out.println("\n" + result.size() + " documents are found");
 			System.out.println(comparisions + " comparisions are made");
 			System.out.println((endTime-startTime)/1000 + " seconds are used");
