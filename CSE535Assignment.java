@@ -106,10 +106,7 @@ public class CSE535Assignment {
 			String term = termList.get(j);
 			TermData td = index.getTermData(term);
 			System.out.println("\nFUNCTION: getPostings " + term);
-			
-			
-			
-			
+		
 			if(td == null)
 			{
 				// Add logic to print NULL;
@@ -452,6 +449,7 @@ public class CSE535Assignment {
 					{
 						LinkedList<String> docList = listOfLists.get(i);
 						int j = listOfIndices.get(i);
+						comparisions ++;
 						while(j<docList.size() && docList.get(j).compareTo(maxString) < 0)
 						{
 							comparisions++;
@@ -579,16 +577,21 @@ public class CSE535Assignment {
 				else
 				{			
 					result.add(minString);
+					listOfIndices.set(minIndex,listOfIndices.get(minIndex) + 1);
 					for(int i = 0 ; i < listOfLists.size(); i++)
 					{
-						int index = listOfIndices.get(i);
-						LinkedList<String> docList = listOfLists.get(i);
-						if(index < docList.size())
+						if(i != minIndex)
 						{
-							comparisions++;
-							String s = docList.get(index);
-							if(s.equals(minString))
-								listOfIndices.set(i,index+1);
+						
+							int index = listOfIndices.get(i);
+							LinkedList<String> docList = listOfLists.get(i);
+							if(index < docList.size())
+							{
+								comparisions++;
+								String s = docList.get(index);
+								if(s.equals(minString))
+									listOfIndices.set(i,index+1);
+							}
 						}
 						
 					}					
