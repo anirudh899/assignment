@@ -18,8 +18,6 @@ public class CSE535Assignment {
 	
 	public static void main(String[] args) 
 	{
-		
-		
 		String input_file_name =  args[0];
 		String log_file_name = args[1];
 		int top_k = Integer.parseInt(args[2]);
@@ -33,6 +31,7 @@ public class CSE535Assignment {
 			e.printStackTrace();
 		}
         System.setOut(out);
+        // calling new indexer will build an index file as well as generate the topK terms.
 		Indexer index = new Indexer(input_file_name,top_k);
 		ArrayList<ArrayList<String>> queryList = parseQueryFile(query_file_name);
 		
@@ -40,7 +39,7 @@ public class CSE535Assignment {
 		for(int i = 0 ; i < queryList.size(); i++)
 		{
 			ArrayList<String> termList = queryList.get(i);
-			Operate(termList,log_file_name,index);
+			Operate(termList,log_file_name,index); // this function will call all the 4 important functions.
 		}
 		
 		
@@ -48,6 +47,7 @@ public class CSE535Assignment {
 	}
 	
 	
+	// function to parse input query file and generate a vector of vector of strings, each string is a query term
 	public static ArrayList<ArrayList<String>> parseQueryFile(String file_name)
 	{
 		ArrayList< ArrayList<String> > result = new ArrayList<ArrayList<String>>();
@@ -145,7 +145,7 @@ public class CSE535Assignment {
 			if(i != termList.size() - 1)
 				System.out.print(", ");
 		}
-		TaatAnd(list,outputFile,ignoreAnd);
+		TaatAnd(list,outputFile,ignoreAnd); // Calling TAAT AND.
 		System.out.print("\nFUNCTION: termAtATimeQueryOr: ");
 		for(int i =0; i < termList.size(); i++)
 		{
@@ -153,7 +153,7 @@ public class CSE535Assignment {
 			if(i != termList.size() - 1)
 				System.out.print(", ");
 		}
-		TaatOr(list,outputFile);
+		TaatOr(list,outputFile); // Calling TAAT OR
 		System.out.print("\nFUNCTION: docAtATimeQueryAnd: ");
 		for(int i =0; i < termList.size(); i++)
 		{
@@ -161,7 +161,7 @@ public class CSE535Assignment {
 			if(i != termList.size() - 1)
 				System.out.print(", ");
 		}
-		DaatAnd(list,outputFile,ignoreAnd);
+		DaatAnd(list,outputFile,ignoreAnd);// Calling DAAT AND
 		System.out.print("\nFUNCTION: docAtATimeQueryOr: ");
 		for(int i =0; i < termList.size(); i++)
 		{
@@ -169,7 +169,7 @@ public class CSE535Assignment {
 			if(i != termList.size() - 1)
 				System.out.print(", ");
 		}
-		DaatOr(list,outputFile);
+		DaatOr(list,outputFile); // calling DAAT OR
 	
 		
 	}
@@ -180,6 +180,7 @@ public class CSE535Assignment {
 		int comparisions = 0;
 		if(list.size() == 0)
 		{
+			// all the terms have no postings, print that no documents were found.
 			
 			System.out.println("\n" + "0 documents were found");
 			System.out.println("0 comparisions were made");
@@ -193,6 +194,9 @@ public class CSE535Assignment {
 			long startTime1 = System.currentTimeMillis();
 			LinkedList<Posting> tempList = new LinkedList<Posting>(list.get(0).postingsListSortedByFrequency);
 			
+			//compare each docId of the temp result array, with each docID of the next list. Maintain the new result, in a temp array
+			// Merge the temp array to the temp result array at the end of the loop.
+			
 			for(int i = 1; i < list.size(); i++)
 			{
 				LinkedList<Posting> curList = list.get(i).postingsListSortedByFrequency;
@@ -204,36 +208,36 @@ public class CSE535Assignment {
 					for(p = 0 ; p < tempList.size(); p++)
 					{
 						comparisions ++;
-						if(curDoc.equals(tempList.get(p).docId))
+						if(curDoc.equals(tempList.get(p).docId)) // if equal, no need to add again, break now.
 							break;
 					}
 					
 					if(p == tempList.size())
-						toAddList.add(curList.get(cur));
+						toAddList.add(curList.get(cur)); // adding a docID to the intermediate list.
 					
 				}
 				
-				tempList.addAll(toAddList);
+				tempList.addAll(toAddList); // merging the intermediate list, to the main result list.
 				
 			}
 			
 			
 			{
-				Collections.sort(tempList, new docIdComparator());
+				Collections.sort(tempList, new docIdComparator()); // sorting the final output.
 				long endTime1= System.currentTimeMillis();
 				
 				System.out.println("\n" + tempList.size() + " documents were found");
 				System.out.println( comparisions + " comparisions were made");
-				System.out.println(((endTime1 - startTime1)/1000) + " seconds were used");
+				System.out.println(((endTime1 - startTime1)/1000.0) + " seconds were used");
 			
 			}
 			
-			// now optimized
+			// sorting the term list based on term counts for the optimized approach.
 			Collections.sort(list, new CountComparator());
 	
 			comparisions = 0 ;
 			
-			//repeat.
+			//repeat the same as before..
 			LinkedList<Posting> tempList1 = new LinkedList<Posting>(list.get(0).postingsListSortedByFrequency);
 			
 			for(int i = 1; i < list.size(); i++)
@@ -281,6 +285,8 @@ public class CSE535Assignment {
 		
 		if(ignoreAnd == true)
 		{
+			// at least one of the input terms has no postings result. And operation will give no results.
+			// No need to compare.
 			
 			System.out.println("\n"  + "0 documents were found");
 			System.out.println("0 comparisions were made");
@@ -291,6 +297,11 @@ public class CSE535Assignment {
 		else
 		{
 			long startTime1 = System.currentTimeMillis();
+			
+			// maintain a temp result list. check each element of this temp result list with each element of the next list.
+			// if there is a common element between both, add the common element to a temp List.
+			// After all common elements are added, the temp list now becomes the temp result list.
+			
 			LinkedList<Posting> tempList = new LinkedList<Posting>(list.get(0).postingsListSortedByFrequency);
 			int comparisions = 0;
 			for(int i = 1 ; i < list.size(); i++)
@@ -329,7 +340,7 @@ public class CSE535Assignment {
 				
 				System.out.println("\n" + tempList.size() + " documents were found");
 				System.out.println( comparisions + " comparisions were made");
-				System.out.println(((endTime1 - startTime1)/1000) + " seconds were used");
+				System.out.println(((endTime1 - startTime1)/1000.0) + " seconds were used");
 				
 				
 			}
@@ -389,11 +400,11 @@ public class CSE535Assignment {
 	}
 	public static void DaatAnd(ArrayList<TermData> list, String outputFile,boolean ignoreAnd)
 	{
-		// UPDATE COMPARISIONS PROPERLY, should consider isValid function also 
+		 
 		int comparisions = 0;
 		if(ignoreAnd == true)
 		{
-			// print appropriate message in log file
+			//
 			System.out.println("\n"  + "0 documents were found");
 			System.out.println("0 comparisions were made");
 			System.out.println("0 seconds were used");
@@ -403,9 +414,10 @@ public class CSE535Assignment {
 		else
 		{
 			long startTime = System.currentTimeMillis();
-			//get max of first indices of all docs;
-			// then move the first indices of the remaining docs till they equal or exceed the max.
-			//if all of them point to max, then add the max to the result and move that mx forward.
+			
+			//get max of first indices of all lists;
+			// then move the first indices of the remaining lists till they equal or exceed the max.
+			//if all of them point to max, then add the max to the result and move that index forward.
 			
 			
 			ArrayList<String> result = new ArrayList<String>();
@@ -418,7 +430,7 @@ public class CSE535Assignment {
 			for(int i = 0 ; i < listOfLists.size(); i++)
 				listOfIndices.add(0);
 				
-			while(isValid2(listOfLists,listOfIndices))
+			while(isValid2(listOfLists,listOfIndices)) // isValid2 will return false, if we have completely traversed atleast one list.
 			{
 				String maxString = "";
 				int max_index = -1;
@@ -442,7 +454,7 @@ public class CSE535Assignment {
 				
 				}
 				
-				// move forward.
+				// move the other elements forward.
 				for(int i = 0; i < listOfLists.size(); i++)
 				{
 					if(i != max_index)
@@ -461,7 +473,8 @@ public class CSE535Assignment {
 					
 				}
 				
-				// now check.
+				// now check if the new indexes all point to the  the same docId in their respective lists.
+				// If any of them exceed the list size, we are done searching. Return.
 				int j = 0;
 				for(j = 0; j < listOfLists.size(); j++)
 				{
@@ -475,7 +488,7 @@ public class CSE535Assignment {
 						long endTime = System.currentTimeMillis();
 						System.out.println("\n" + result.size() + " documents are found");
 						System.out.println(comparisions + " comparisions are made");
-						System.out.println((endTime-startTime)/1000 + " seconds are used");
+						System.out.println((endTime-startTime)/1000.0 + " seconds are used");
 						System.out.print("Result: ");
 						for(int i = 0 ; i < result.size(); i++)
 						{
@@ -498,6 +511,7 @@ public class CSE535Assignment {
 					
 				}
 				
+				// Found a matching element, add to result.
 				if(j == listOfLists.size())
 					result.add(maxString);
 			
@@ -509,7 +523,7 @@ public class CSE535Assignment {
 			long endTime = System.currentTimeMillis();
 			System.out.println("\n" + result.size() + " documents are found");
 			System.out.println(comparisions + " comparisions are made");
-			System.out.println((endTime-startTime)/1000 + " seconds are used");
+			System.out.println((endTime-startTime)/1000.0 + " seconds are used");
 			System.out.print("Result: ");
 			for(int i = 0 ; i < result.size(); i++)
 			{
@@ -523,8 +537,7 @@ public class CSE535Assignment {
 	}
 	public static void DaatOr(ArrayList<TermData> list, String outputFile)
 	{
-		// UPDATE COMPARISIONS PROPERLY, should consider isValid function also.
-		
+	
 		ArrayList<String> result = new ArrayList<String>();
 		int comparisions = 0;
 		if(list.size() == 0)
@@ -547,11 +560,12 @@ public class CSE535Assignment {
 					listOfIndices.add(0);				
 			
 			
-			while(isValid(listOfLists,listOfIndices) == true)
+			while(isValid(listOfLists,listOfIndices) == true)// isValid will return true, if there is at least one list which we have not completely traversed.
 			{
 				String minString = "99999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999";
 				int minIndex = -1;
 				
+				// find minimum of the first indices of all strings
 				for(int i = 0 ; i < listOfLists.size();i++)
 				{
 					int index = listOfIndices.get(i);
@@ -575,7 +589,10 @@ public class CSE535Assignment {
 				if(minIndex == -1)
 					break;
 				else
-				{			
+				{		
+					// add the minimum String to the result. Update the index of the list which gave us the minimum.
+					// There may be multiple occurrences of min.
+					//To avoid duplicates, also move the other indices which have the same value as the min
 					result.add(minString);
 					listOfIndices.set(minIndex,listOfIndices.get(minIndex) + 1);
 					for(int i = 0 ; i < listOfLists.size(); i++)
@@ -592,19 +609,16 @@ public class CSE535Assignment {
 								if(s.equals(minString))
 									listOfIndices.set(i,index+1);
 							}
-						}
-						
-					}					
-						
+						}		
+					}							
 				}			
-				
 			}
 			long endTime = System.currentTimeMillis();
 			
 			
 			System.out.println("\n" + result.size() + " documents are found");
 			System.out.println(comparisions + " comparisions are made");
-			System.out.println((endTime-startTime)/1000 + " seconds are used");
+			System.out.println((endTime-startTime)/1000.0 + " seconds are used");
 			System.out.print("Result: ");
 			for(int i = 0 ; i < result.size(); i++)
 			{

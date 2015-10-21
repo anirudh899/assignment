@@ -21,7 +21,7 @@ public class Indexer
 	{
 		termList = new ArrayList<Term>();
 		topKTerms = new heap(top_K);
-		map = new HashMap<String,TermData>();
+		map = new HashMap<String,TermData>(); // hashmap to store my terms and corresponding term information.
 		File f = new File(file_name);
 		
 		FileReader fr = null;
@@ -36,13 +36,12 @@ public class Indexer
 	    try {
 			while((line = br.readLine()) != null)
 			{
-				Term t = new Term(line);
+				Term t = new Term(line); // constructor here will create the docId sorted list and TF sorted list for this term
 				termList.add(t);
-				topKTerms.add(t); // sort this here.
-				
+				topKTerms.add(t); // adding this term to get topK, using a min heap approach to get the topK terms.
 			}
-			topKTerms.sort();
-			createMap();
+			topKTerms.sort(); // sorting the topK terms.
+			createMap(); // building the final hashmap of term string as key and an object of all the term related data as value.
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -79,11 +78,6 @@ public class Indexer
 		// TODO Auto-generated constructor stub
 	}
 
-	public LinkedList<String> getTopK(int k)
-	{
-		LinkedList<String> a = new LinkedList<String>();
-		return a;
-	}
 	
 	public void print()
 	{
@@ -143,10 +137,7 @@ public class Indexer
 		TermData d = map.get(s);	
 		return d;
 	}
-	
-	
-	
-	
+		
 }
 
 

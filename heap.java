@@ -3,6 +3,8 @@ package code;
 import java.util.Arrays;
 import java.util.Collections;
 
+
+// Implementation of min heap, this will dynamically maintain the top k- terms in the dictionary.
 public class heap 
 {
 	private int size;
